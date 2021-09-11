@@ -4,6 +4,7 @@ use crate::result::Error;
 use crate::result::Result;
 use crate::remindable::Remindable;
 use std::convert::TryFrom;
+use std::path::PathBuf;
 
 pub struct Database {
     connection: Connection,
@@ -11,7 +12,7 @@ pub struct Database {
 
 impl Database {
     pub fn open() -> Result<Self> {
-        let connection = Connection::open("reminder.db")?;
+        let connection = Connection::open(Self::get_path())?;
 
         connection.execute("\
         CREATE TABLE IF NOT EXISTS Remindables (
@@ -22,6 +23,13 @@ impl Database {
         );", [])?;
 
         Ok(Database { connection })
+    }
+
+    fn get_path() -> PathBuf {
+        let mut path = std::env::current_exe().unwrap();
+        path.pop();
+        path.push("reminder.db");
+        path
     }
 
     pub fn get_remindables(&self) -> Result<Vec<Remindable>> {
@@ -55,6 +63,13 @@ impl Database {
     pub fn set_remindable_done_today(&self, key: String) -> Result<()> {
         let mut remindable = self.get_remindable_by_key(key)?;
         remindable.set_done_today();
+        self.update_remindable(remindable)?;
+        Ok(())
+    }
+
+    pub fn update_name(&self, key: String, new_name: String) -> Result<()> {
+        let mut remindable = self.get_remindable_by_key(key)?;
+        remindable.name = new_name;
         self.update_remindable(remindable)?;
         Ok(())
     }

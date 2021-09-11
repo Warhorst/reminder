@@ -16,6 +16,7 @@ fn main() -> Result<()> {
     match Command::parse() {
         Add(params) => Database::open()?.add_remindable(Remindable::try_from(params)?),
         DoneToday(params) => Database::open()?.set_remindable_done_today(params.key),
+        SetName(params) => Database::open()?.update_name(params.key, params.new_name),
         SetLastUpdate(params) => Database::open()?.update_last_update(params.key, params.new_last_update),
         SetRemindInterval(params) => Database::open()?.update_remindable_interval(params.key, params.new_remind_interval),
         Delete(params) => Database::open()?.delete_entry_by_key(params.key),
@@ -28,6 +29,7 @@ fn main() -> Result<()> {
 enum Command {
     Add(AddParams),
     DoneToday(DoneTodayParams),
+    SetName(SetNameParams),
     SetLastUpdate(SetLastUpdateParams),
     SetRemindInterval(SetRemindIntervalParams),
     Delete(DeleteParams),
@@ -68,6 +70,15 @@ impl TryFrom<AddParams> for Remindable {
 struct DoneTodayParams {
     /// Key which identifies the remindable to be updated.
     pub key: String
+}
+
+/// Set the name of a specific remindable.
+#[derive(Clap)]
+struct SetNameParams {
+    /// Key which identifies the remindable to be updated.
+    pub key: String,
+    /// new name/description of this remindable. Only used for easier identification.
+    pub new_name: String
 }
 
 /// Set the last update for a specific remindable to the given value.
