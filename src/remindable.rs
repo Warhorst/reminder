@@ -1,5 +1,5 @@
 use crate::result::Result;
-use chrono::{Local, DateTime, Duration, TimeZone, Date, Datelike};
+use chrono::{Local, Duration, TimeZone, Date, Datelike};
 use crate::result::Error;
 use std::fmt::Formatter;
 use std::ops::Sub;

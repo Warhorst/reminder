@@ -1,6 +1,4 @@
-use chrono::{Date, Local, TimeZone};
 use clap::Clap;
-use rusqlite::Connection;
 
 use Command::*;
 use result::Result;
@@ -16,28 +14,35 @@ pub mod result;
 
 fn main() -> Result<()> {
     match Command::parse() {
-        GetAll => Ok(Database::open()?.get_remindables()?.iter().for_each(|e| println!("{}", e))),
-        Todos => Ok(Database::open()?.get_remindables()?.iter().filter(|rem| rem.is_todo()).for_each(|rem| println!("{}", rem))),
         Add(params) => Database::open()?.add_remindable(Remindable::try_from(params)?),
-        Delete(params) => Database::open()?.delete_entry_by_key(params.name),
-        DoneToday(params) => Database::open()?.set_remindable_done_today(params.key)
+        DoneToday(params) => Database::open()?.set_remindable_done_today(params.key),
+        Delete(params) => Database::open()?.delete_entry_by_key(params.key),
+        GetAll => Ok(Database::open()?.get_remindables()?.iter().for_each(|rem| println!("{}", rem))),
+        Todos => Ok(Database::open()?.get_remindables()?.iter().filter(|rem| rem.is_todo()).for_each(|rem| println!("{}", rem))),
     }
 }
 
 #[derive(Clap)]
 enum Command {
-    GetAll,
-    Todos,
     Add(AddParams),
+    DoneToday(DoneTodayParams),
     Delete(DeleteParams),
-    DoneToday(DoneTodayParams)
+    /// Return all remindables from the database and print their data on the console.
+    GetAll,
+    /// Return all remindables which need to be done.
+    Todos,
 }
 
+/// Add a remindable to the database.
 #[derive(Clap)]
 struct AddParams {
+    /// Key of the remindable. Used to access the remindable later.
     pub key: String,
+    /// Name/description of this remindable. Only used for easier identification.
     pub name: String,
+    /// Date of the last update. The format is "DD.MM.YYYY". Day and month don't need to be two digits.
     pub last_update: String,
+    /// Maximum duration after which this remindable must be done again. Possible inputs are "D<n>" for n days ore "W<n>" for n weeks.
     pub remind_interval: String
 }
 
@@ -54,12 +59,16 @@ impl TryFrom<AddParams> for Remindable {
     }
 }
 
+/// Delete a remindable. This cannot be undone.
 #[derive(Clap)]
 struct DeleteParams {
-    pub name: String
+    /// Key which identifies the remindable to be deleted.
+    pub key: String
 }
 
+/// Set the date where a specific remindable was done to today.
 #[derive(Clap)]
 struct DoneTodayParams {
+    /// Key which identifies the remindable to be updated.
     pub key: String
 }

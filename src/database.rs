@@ -1,11 +1,8 @@
-use clap::Clap;
 use rusqlite::{Connection, Row};
 
 use crate::result::Error;
 use crate::result::Result;
 use crate::remindable::Remindable;
-use std::fmt::Formatter;
-use rusqlite::types::Type::Null;
 use std::convert::TryFrom;
 
 pub struct Database {
