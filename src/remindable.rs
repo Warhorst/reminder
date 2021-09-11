@@ -55,6 +55,16 @@ impl Remindable {
         self.last_update = Local::today()
     }
 
+    pub fn set_last_update(&mut self, last_update_string: String) -> Result<()> {
+        self.last_update = Self::date_from_string(last_update_string)?;
+        Ok(())
+    }
+
+    pub fn set_remind_interval(&mut self, remind_interval_string: String) -> Result<()> {
+        self.remind_interval = Self::duration_from_string(remind_interval_string)?;
+        Ok(())
+    }
+
     pub fn get_last_update_string(&self) -> String {
         format!("{}.{}.{}", self.last_update.day(), self.last_update.month(), self.last_update.year())
     }
