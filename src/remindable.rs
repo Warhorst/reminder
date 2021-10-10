@@ -48,7 +48,7 @@ impl Remindable {
     }
 
     pub fn is_todo(&self) -> bool {
-        Local::today().sub(self.remind_interval) > self.last_update
+        Local::today().sub(self.remind_interval) >= self.last_update
     }
 
     pub fn set_done_today(&mut self) {
