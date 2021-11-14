@@ -7,6 +7,7 @@ use crate::database::{Database};
 use crate::remindable::Remindable;
 use crate::result::Error;
 use std::convert::TryFrom;
+use cli_table::table::Table;
 
 mod database;
 mod remindable;
@@ -20,9 +21,15 @@ fn main() -> Result<()> {
         SetLastUpdate(params) => Database::open()?.update_last_update(params.key, params.new_last_update),
         SetRemindInterval(params) => Database::open()?.update_remindable_interval(params.key, params.new_remind_interval),
         Delete(params) => Database::open()?.delete_entry_by_key(params.key),
-        GetAll => Ok(Database::open()?.get_remindables()?.iter().for_each(|rem| println!("{}", rem))),
-        Todos => Ok(Database::open()?.get_remindables()?.iter().filter(|rem| rem.is_todo()).for_each(|rem| println!("{}", rem))),
+        GetAll => Ok(print_remindables(Database::open()?.get_remindables()?.iter())),
+        Todos => Ok(print_remindables(Database::open()?.get_remindables()?.iter().filter(|rem| rem.is_todo()))),
     }
+}
+
+fn print_remindables<'a, I: IntoIterator<Item=&'a Remindable>>(remindables: I) {
+    Table::new()
+        .header(["Key", "Full Name", "Last Update", "Remind Interval"])
+        .print_data(remindables)
 }
 
 #[derive(Clap)]

@@ -3,6 +3,7 @@ use chrono::{Local, Duration, TimeZone, Date, Datelike};
 use crate::result::Error;
 use std::fmt::Formatter;
 use std::ops::Sub;
+use cli_table::row::{ToRow, Row};
 
 pub struct Remindable {
     pub key: String,
@@ -74,6 +75,12 @@ impl Remindable {
             n if n > 1 => format!("W{}", n),
             _ => format!("D{}", self.remind_interval.num_days())
         }
+    }
+}
+
+impl ToRow<4> for Remindable {
+    fn to_table_row(&self) -> Row<4> {
+        Row::from([self.key.clone(), self.name.clone(), self.get_last_update_string(), self.get_remind_interval_string()])
     }
 }
 
